@@ -4,21 +4,6 @@ An AI-powered web application that predicts the likelihood of a car insurance cl
 
 ---
 
-## 📌 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Architecture](#architecture)
-- [How It Works](#how-it-works)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Screenshots](#screenshots)
-- [Future Enhancements](#future-enhancements)
-- [Contributors](#contributors)
-
----
-
 ## 🧠 Overview
 
 In the modern insurance industry, fast and accurate claim risk analysis is essential. This system leverages Machine Learning to assess a customer's likelihood of claiming car insurance, enabling both transparency for users and cost-efficiency for insurers.
@@ -54,13 +39,3 @@ In the modern insurance industry, fast and accurate claim risk analysis is essen
 
 ---
 
-## 🧱 Architecture
-
-```mermaid
-graph TD
-A[User Input via Web Form] --> B[Backend API - Flask]
-B --> C[ML Model (model.pkl)]
-B --> D[Database (SQLite/PostgreSQL)]
-C --> E[Prediction + Confidence Score]
-D --> F[Data Logging + Retrieval]
-E --> G[Frontend Result Page with Graphs]
