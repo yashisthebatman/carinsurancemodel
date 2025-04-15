@@ -14,12 +14,22 @@
 
         <div class="result">
             <h2>Prediction Result</h2>
-            <p><strong>Predicted Result:</strong> <span class="prediction">{{ prediction_text }}</span></p>
+            <p><strong>Predicted Claim Outcome:</strong> <span class="prediction">{{ prediction_text }}</span></p>
+
+            <!-- New Section for Gemini Advice -->
+            {% if advice_text %}
+            <div class="advice">
+                <h3>Personalized Advice:</h3>
+                <p>{{ advice_text }}</p>
+            </div>
+            {% endif %}
+            <!-- End of New Section -->
+
             <a href="/">Go Back</a>
         </div>
 
         <footer>
-            <p>&copy; 2025 Car Insurance Prediction</p>
+            <p>© 2025 Car Insurance Prediction</p> <!-- Update year maybe? -->
         </footer>
     </div>
 </body>
