@@ -1,139 +1,73 @@
-import flask
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, render_template, request
+import pickle
+import numpy as np
 import joblib
-import pandas as pd
-import numpy as np # For handling potential type issues
+
 
 app = Flask(__name__)
 
-# --- Configuration ---
-MODEL_FILE = 'car_insurance_claim_rf_pipeline.joblib'
-# --- IMPORTANT: Define the exact feature names the model was trained on ---
-# --- (excluding ID and OUTCOME) ---
-# --- Make sure the order matches if your pipeline relies on it (ColumnTransformer usually handles order) ---
-EXPECTED_FEATURES = [
-    'AGE', 'GENDER', 'RACE', 'DRIVING_EXPERIENCE', 'EDUCATION', 'INCOME',
-    'CREDIT_SCORE', 'VEHICLE_OWNERSHIP', 'VEHICLE_YEAR', 'MARRIED', 'CHILDREN',
-    'POSTAL_CODE', 'ANNUAL_MILEAGE', 'VEHICLE_TYPE', 'SPEEDING_VIOLATIONS',
-    'DUIS', 'PAST_ACCIDENTS'
-]
+# Load your trained model
+model = joblib.load('model/systum.pkl')
 
-# --- Load the trained pipeline ---
-try:
-    print(f"Loading model from {MODEL_FILE}...")
-    pipeline = joblib.load(MODEL_FILE)
-    print("Model loaded successfully.")
-except FileNotFoundError:
-    print(f"Error: Model file '{MODEL_FILE}' not found.")
-    pipeline = None # Set to None if loading fails
-except Exception as e:
-    print(f"Error loading model: {e}")
-    pipeline = None
+# Encoding maps
+gender_map = {'male': 0, 'female': 1}
+experience_map = {'0-9y': 0, '10-19y': 1, '20-29y': 2, '30+ y': 3}
+education_map = {'none': 0, 'high school': 1, 'university': 2}
+income_map = {'poverty': 0, 'working class': 1, 'middle class': 2, 'upper class': 3}
+vehicle_ownership_map = {'0': 0, '1': 1}
+vehicle_year_map = {'before 2015': 0, 'after 2015': 1}
+married_map = {'0': 0, '1': 1}
+children_map = {'0': 0, '1': 1}
 
-# --- Routes ---
+age_map = {'16-25': 0, '26-39': 1, '40-64': 2, '65+': 3}
+
+# Binning function
+def bin_violations_or_accidents(value):
+    value = int(value)
+    if value == 0:
+        return 0
+    elif value == 1:
+        return 1
+    elif 2 <= value <= 5:
+        return 2
+    else:
+        return 3
 
 @app.route('/')
 def home():
-    """Renders the main HTML page with the input form."""
-    if pipeline is None:
-         # Optionally render an error page or message if model loading failed
-         return "Error: Model could not be loaded. Please check the server logs.", 500
     return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    """Handles prediction requests from the form."""
-    if pipeline is None:
-        return jsonify({'error': 'Model not loaded'}), 500
-
-    if not request.is_json:
-         # Fallback for potential standard form submission (though JS uses JSON)
-        form_data = request.form
-        if not form_data:
-             return jsonify({'error': 'No form data received'}), 400
-        print("Received data via form submission (fallback)")
-        input_data = {feature: form_data.get(feature) for feature in EXPECTED_FEATURES}
-
-    else:
-         # Preferred: Receive data as JSON from fetch request
-        json_data = request.get_json()
-        if not json_data:
-            return jsonify({'error': 'No JSON data received'}), 400
-        print("Received data via JSON submission")
-        # Ensure we only take expected features from JSON
-        input_data = {feature: json_data.get(feature) for feature in EXPECTED_FEATURES}
-
-
-    print(f"Received input data: {input_data}")
-
-    # --- Data Validation and Conversion ---
-    processed_data = {}
-    missing_fields = []
-    type_errors = {}
-
-    for feature in EXPECTED_FEATURES:
-        value = input_data.get(feature)
-        if value is None or value == '':
-            missing_fields.append(feature)
-            continue # Skip conversion if missing
-
-        # Attempt type conversion based on typical feature types
-        try:
-            if feature in ['CREDIT_SCORE']:
-                processed_data[feature] = float(value)
-            elif feature in ['VEHICLE_OWNERSHIP', 'MARRIED', 'CHILDREN',
-                           'ANNUAL_MILEAGE', 'SPEEDING_VIOLATIONS', 'DUIS',
-                           'PAST_ACCIDENTS', 'POSTAL_CODE']: # Treat POSTAL_CODE as numerical if needed, else keep string
-                 # If POSTAL_CODE was one-hot encoded, keep it as string/object
-                 if feature == 'POSTAL_CODE' and not isinstance(value, (int, float)):
-                     processed_data[feature] = str(value) # Keep as string if needed for OHE
-                 else:
-                    processed_data[feature] = int(value)
-            else: # Assume others are categorical (strings)
-                processed_data[feature] = str(value)
-        except ValueError:
-            type_errors[feature] = f"Invalid value '{value}' - expected number"
-
-    if missing_fields:
-        return jsonify({'error': f'Missing fields: {", ".join(missing_fields)}'}), 400
-    if type_errors:
-        return jsonify({'error': 'Invalid data types', 'details': type_errors}), 400
-
-    # --- Create DataFrame for Prediction ---
     try:
-        # Create a DataFrame with the correct column order
-        input_df = pd.DataFrame([processed_data], columns=EXPECTED_FEATURES)
-        print(f"DataFrame for prediction:\n{input_df.to_string()}")
+        # Get form values
+        age = age_map[request.form['AGE']]
+        gender = gender_map[request.form['GENDER']]
+        experience = experience_map[request.form['DRIVING_EXPERIENCE']]
+        education = education_map[request.form['EDUCATION']]
+        income = income_map[request.form['INCOME']]
+        vehicle = vehicle_ownership_map[request.form['VEHICLE_OWNERSHIP']]
+        year = vehicle_year_map[request.form['VEHICLE_YEAR']]
+        married = married_map[request.form['MARRIED']]
+        children = children_map[request.form['CHILDREN']]
+        duis = bin_violations_or_accidents(request.form['DUIS'])
+        license_status = int(request.form['LICENSE'])  # assuming it's 0 or 1
+
+        
+        speeding = bin_violations_or_accidents(request.form['SPEEDING_VIOLATIONS'])
+        accidents = bin_violations_or_accidents(request.form['PAST_ACCIDENTS'])
+
+        # Create feature vector
+        features = np.array([[age, gender, experience, education, income, vehicle,
+                              year, married, children, speeding, accidents, duis, license_status]])
+
+        prediction = model.predict(features)
+        result = 'Accepted' if prediction[0] == 1 else 'Rejected'
+
+        return render_template('index.html', prediction_text=f'Claim is likely: {result}')
+    
     except Exception as e:
-         print(f"Error creating DataFrame: {e}")
-         return jsonify({'error': 'Error processing input data'}), 500
+        return render_template('index.html', prediction_text=f'Error: {e}')
 
-
-    # --- Make Prediction ---
-    try:
-        # Predict probability (more informative)
-        # predict_proba returns probabilities for [class 0, class 1]
-        probabilities = pipeline.predict_proba(input_df)[0]
-        claim_probability = probabilities[1] # Probability of outcome being 1 (claim)
-
-        # You could also get the direct prediction:
-        # prediction = pipeline.predict(input_df)[0]
-
-        print(f"Prediction probabilities: {probabilities}")
-        print(f"Claim probability (Class 1): {claim_probability:.4f}")
-
-        return jsonify({
-            'claim_probability': round(claim_probability * 100, 2) # Return as percentage
-            # 'prediction_outcome': int(prediction) # Optionally return 0 or 1
-            })
-
-    except Exception as e:
-        print(f"Error during prediction: {e}")
-        # Provide a more generic error to the user
-        return jsonify({'error': 'Prediction failed'}), 500
-
-# --- Run the App ---
 if __name__ == '__main__':
-    # Set host='0.0.0.0' to make it accessible on your network
-    # Remove debug=True for production
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True)
