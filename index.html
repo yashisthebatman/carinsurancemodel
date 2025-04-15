@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Insurance Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        function toggleFormMode() {
+            var dlMode = document.getElementById('dl-mode');
+            var manualMode = document.getElementById('manual-mode');
+            var inputMode = document.getElementById('input-mode').value;
+            
+            if (inputMode === 'license') {
+                dlMode.style.display = 'block';
+                manualMode.style.display = 'none';
+            } else {
+                dlMode.style.display = 'none';
+                manualMode.style.display = 'block';
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Car Insurance Prediction</h1>
+        
+        <div class="mode-selector">
+            <label for="input-mode">Choose input method:</label>
+            <select id="input-mode" name="input-mode" onchange="toggleFormMode()">
+                <option value="manual">Manual Entry</option>
+                <option value="license">Driver's License ID</option>
+                
+            </select>
+        </div>
+        
+        <form action="/predict" method="POST">
+            <!-- Driver's License Mode -->
+            <div id="dl-mode" style="display: none;">
+                <div class="form-group">
+                    <label for="license-id">Driver's License ID:</label>
+                    <input type="text" name="license_id" id="license-id" placeholder="Enter your license ID (e.g., DL123456789)">
+                </div>
+                <div class="form-group">
+                    <button type="submit" name="submit_method" value="license">Submit</button>
+                </div>
+            </div>
+            
+            <!-- Manual Entry Mode -->
+            <div id="manual-mode">
+                <div class="form-group">
+                    <label for="age">Age:</label>
+                    <select name="AGE" id="age" required>
+                        <option value="26-39">26-39</option>
+                        <option value="40-64">40-64</option>
+                        <option value="16-25">16-25</option>
+                        <option value="65+">65+</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">Gender:</label>
+                    <select name="GENDER" id="gender" required>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="experience">Driving Experience:</label>
+                    <select name="DRIVING_EXPERIENCE" id="experience" required>
+                        <option value="0-9y">0-9 years</option>
+                        <option value="10-19y">10-19 years</option>
+                        <option value="20-29y">20-29 years</option>
+                        <option value="30+ y">30+ years</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="education">Education:</label>
+                    <select name="EDUCATION" id="education" required>
+                        <option value="none">None</option>
+                        <option value="high school">High School</option>
+                        <option value="university">University</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="income">Income:</label>
+                    <select name="INCOME" id="income" required>
+                        <option value="upper class">Upper Class</option>
+                        <option value="middle class">Middle Class</option>
+                        <option value="poverty">Poverty</option>
+                        <option value="working class">Working Class</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="vehicle_ownership">Vehicle Ownership:</label>
+                    <select name="VEHICLE_OWNERSHIP" id="vehicle_ownership" required>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="vehicle_year">Vehicle Year:</label>
+                    <select name="VEHICLE_YEAR" id="vehicle_year" required>
+                        <option value="before 2015">Before 2015</option>
+                        <option value="after 2015">After 2015</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="married">Marital Status:</label>
+                    <select name="MARRIED" id="married" required>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="children">Children:</label>
+                    <select name="CHILDREN" id="children" required>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="speeding_violations">Speeding Violations:</label>
+                    <select name="SPEEDING_VIOLATIONS" id="speeding_violations" required>
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2-5">2-5</option>
+                        <option value="5+">5+</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="past_accidents">Past Accidents:</label>
+                    <select name="PAST_ACCIDENTS" id="past_accidents" required>
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2-5">2-5</option>
+                        <option value="5+">5+</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" name="submit_method" value="manual">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
