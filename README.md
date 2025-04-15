@@ -2,18 +2,8 @@ okay, dekho
 
 tum logho ka project structure aise hoga
 
-carinsurance/
-|
-|-----static/
-        |-----style.css
-|-----templates/
-         |-----index.html
-         |-----result.html
-|-----templates/
-         |-----index.html
-         |-----result.html
-|-----systum.pkl
-|-----requirements.txt
+project structure ke liye WA check karlo
 
 systum.pkl wont be under a sub folder and haan pls 
 env virtual environment downlaod karlo
+
