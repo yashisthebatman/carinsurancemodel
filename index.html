@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Insurance Claim Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Insurance Claim Prediction</h1>
+
+    <form action="/predict" method="POST">
+        <label>Age:</label>
+        <select name="AGE">
+            <option value="16-25">16-25</option>
+            <option value="26-39">26-39</option>
+            <option value="40-64">40-64</option>
+            <option value="65+">65+</option>
+        </select><br><br>
+
+        <label>Gender:</label>
+        <select name="GENDER">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select><br><br>
+
+        <label>Driving Experience:</label>
+        <select name="DRIVING_EXPERIENCE">
+            <option value="0-9y">0-9y</option>
+            <option value="10-19y">10-19y</option>
+            <option value="20-29y">20-29y</option>
+            <option value="30+ y">30+ y</option>
+        </select><br><br>
+
+        <label>Education:</label>
+        <select name="EDUCATION">
+            <option value="none">None</option>
+            <option value="high school">High School</option>
+            <option value="university">University</option>
+        </select><br><br>
+
+        <label>Income:</label>
+        <select name="INCOME">
+            <option value="poverty">Poverty</option>
+            <option value="working class">Working Class</option>
+            <option value="middle class">Middle Class</option>
+            <option value="upper class">Upper Class</option>
+        </select><br><br>
+
+        <label>Vehicle Ownership:</label>
+        <select name="VEHICLE_OWNERSHIP">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </select><br><br>
+
+        <label>Vehicle Year:</label>
+        <select name="VEHICLE_YEAR">
+            <option value="before 2015">Before 2015</option>
+            <option value="after 2015">After 2015</option>
+        </select><br><br>
+
+        <label>Married:</label>
+        <select name="MARRIED">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </select><br><br>
+
+        <label>Children:</label>
+        <select name="CHILDREN">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </select><br><br>
+
+        <label>DUIs:</label>
+        <input type="number" name="DUIS" min="0" required><br><br>
+
+        <label>License:</label>
+        <select name="LICENSE">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </select><br><br>
+
+        <label>Speeding Violations:</label>
+        <input type="number" name="SPEEDING_VIOLATIONS" min="0" required><br><br>
+
+        <label>Past Accidents:</label>
+        <input type="number" name="PAST_ACCIDENTS" min="0" required><br><br>
+
+        <input type="submit" value="Predict">
+    </form>
+
+    {% if prediction_text %}
+        <h2>{{ prediction_text }}</h2>
+    {% endif %}
+</body>
+</html>
